@@ -79,6 +79,8 @@ public function payService(Request $request) {
             'request_id' => $request->request_id,
             'amount' => $request->amount,
             'phone' => $request->phone,
+            'billersCode' => $request->biller_code,
+            'variation_code' => $request->variation_code,
         ];
     
         // Make the POST request with headers
@@ -114,7 +116,7 @@ public function payService(Request $request) {
         $wallet->transactions()->create([
             'type' => 'withdraw',
             'amount' => $request->amount,
-            'description' => $request->description,
+            'description' => $request->description. ' '. '/' .' ' . $request->phone,
             'transaction_id' => $request->transaction_id,
             'payment_gateway' => 'online',
             'transaction_type' => $request->transaction_type,
@@ -139,6 +141,49 @@ public function payService(Request $request) {
         
         //return $response->json(); // Return the response as JSON    
 }
+
+public function verifyMerchant(Request $request) {    
+
+    // Define the API endpoint
+    $url = "https://sandbox.vtpass.com/api/merchant-verify";
+
+    // Set your API and secret keys
+    $apiKey = 'a39e799a687ba09d141c3fcfca784b2e';
+    $secretKey = 'SK_98211bd63250edd280a9374fde5d931f482e578d7ef'; // Replace 'public-key' with 'secret-key'
+
+    // Data to send in the POST request
+    $postData = [
+        // Include any required fields for the POST request
+        'serviceID' => $request->service_id, // Replace with your actual data
+        'billersCode' => $request->biller_code,
+    ];
+
+    // Make the POST request with headers
+    $response = Http::withHeaders([
+        'api-key' => $apiKey,
+        'secret-key' => $secretKey,
+    ])->post($url, $postData);
+
+    $vtu_response = $response->json();
+
+    if( $vtu_response['code'] == 000) {
+    return response()->json([
+        'status' => 'success',
+        'data' => $response->json()
+    ], 200);
+    }
+
+    return response()->json([
+            'status' => 'error',
+            'error' => [
+                'code' => 422,
+                'message' => 'Unable to process data',
+            ],
+    ], 422);   
+    
+    //return $response->json(); // Return the response as JSON    
+}
+
 
 
 }

@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('services/{identifier}', [ServiceController::class, 'listServiceProvider']);
     Route::get('services/variation/{service}', [ServiceController::class, 'listServiceVariation']);
     Route::post('services/pay', [ServiceController::class, 'payService']);
+    Route::post('services/verify-merchant', [ServiceController::class, 'verifyMerchant']);
 
 
     // Wallet API Route
